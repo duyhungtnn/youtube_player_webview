@@ -12,7 +12,10 @@ dependencies:
   flutter:
     sdk: flutter
   #webview_flutter: ^1.0.1
-  webview_flutter: any
+  webview_flutter:
+    git:
+      url: git@github.com:duyhungtnn/webview_flutter.git
+      ref: 961290f440ce3f8d5c4d6473ec68e794ca84c7dd
 
 dev_dependencies:
   flutter_test:
