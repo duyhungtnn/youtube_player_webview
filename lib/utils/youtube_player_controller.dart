@@ -68,13 +68,13 @@ class YoutubePlayerValue {
   final String errorMessage;
 
   /// Reports the [WebViewController].
-  final WebViewController webViewController;
+  final WebViewController? webViewController;
 
   /// Returns true is player has errors.
   bool get hasError => errorCode != 0;
 
   /// Reports the current playback quality.
-  final String playbackQuality;
+  final String? playbackQuality;
 
   /// Returns true if [ProgressBar] is being dragged.
   final bool isDragging;
@@ -85,23 +85,23 @@ class YoutubePlayerValue {
   /// Creates new [YoutubePlayerValue] with assigned parameters and overrides
   /// the old one.
   YoutubePlayerValue copyWith({
-    bool isReady,
-    bool isControlsVisible,
-    bool isLoaded,
-    bool hasPlayed,
-    Duration position,
-    double buffered,
-    bool isPlaying,
-    bool isFullScreen,
-    double volume,
-    PlayerState playerState,
-    double playbackRate,
-    String playbackQuality,
-    int errorCode,
-    String errorMessage,
-    WebViewController webViewController,
-    bool isDragging,
-    YoutubeMetaData metaData,
+    bool? isReady,
+    bool? isControlsVisible,
+    bool? isLoaded,
+    bool? hasPlayed,
+    Duration? position,
+    double? buffered,
+    bool? isPlaying,
+    bool? isFullScreen,
+    int? volume,
+    PlayerState? playerState,
+    double? playbackRate,
+    String? playbackQuality,
+    int? errorCode,
+    String? errorMessage,
+    WebViewController? webViewController,
+    bool? isDragging,
+    YoutubeMetaData? metaData,
   }) {
     return YoutubePlayerValue(
       isReady: isReady ?? this.isReady,
@@ -159,16 +159,14 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
 
   /// Creates [YoutubePlayerController].
   YoutubePlayerController({
-    @required this.initialVideoId,
+    required this.initialVideoId,
     this.flags = const YoutubePlayerFlags(),
-  })  : assert(initialVideoId != null, 'initialVideoId can\'t be null.'),
-        assert(flags != null),
-        super(YoutubePlayerValue());
+  })  : super(YoutubePlayerValue());
 
   /// Finds [YoutubePlayerController] in the provided context.
   factory YoutubePlayerController.of(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<InheritedYoutubePlayer>()
-      ?.controller;
+      !.controller;
 
   _callMethod(String methodString) {
     if (value.isReady) {
@@ -195,7 +193,7 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
   void pause() => _callMethod('pause()');
 
   /// Loads the video as per the [videoId] provided.
-  void load(String videoId, {int startAt = 0, int endAt}) {
+  void load(String videoId, {int startAt = 0, int? endAt}) {
     var loadParams = 'videoId:"$videoId",startSeconds:$startAt';
     if (endAt != null && endAt > startAt) {
       loadParams += ',endSeconds:$endAt';
@@ -209,7 +207,7 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
   }
 
   /// Cues the video as per the [videoId] provided.
-  void cue(String videoId, {int startAt = 0, int endAt}) {
+  void cue(String videoId, {int startAt = 0, int? endAt}) {
     var cueParams = 'videoId:"$videoId",startSeconds:$startAt';
     if (endAt != null && endAt > startAt) {
       cueParams += ',endSeconds:$endAt';
@@ -222,7 +220,7 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
     }
   }
 
-  void _updateValues(String id) {
+  void _updateValues(String? id) {
     if (id?.length != 11) {
       updateValue(
         value.copyWith(
@@ -328,11 +326,10 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
 class InheritedYoutubePlayer extends InheritedWidget {
   /// Creates [InheritedYoutubePlayer]
   const InheritedYoutubePlayer({
-    Key key,
-    @required this.controller,
-    @required Widget child,
-  })  : assert(controller != null),
-        super(key: key, child: child);
+    Key? key,
+    required this.controller,
+    required Widget child,
+  })  : super(key: key, child: child);
 
   /// A [YoutubePlayerController] which controls the player.
   final YoutubePlayerController controller;

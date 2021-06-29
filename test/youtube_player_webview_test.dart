@@ -10,19 +10,19 @@ import 'package:youtube_player_webview/youtube_player_webview.dart';
 import 'package:youtube_player_webview/widgets/widgets.dart';
 
 Widget buildPlayer({
-  YoutubePlayerController controller,
-  double width,
-  List<Widget> bottomActions,
-  List<Widget> topActions,
+  required YoutubePlayerController controller,
+  double? width,
+  List<Widget>? bottomActions,
+  List<Widget>? topActions,
   bool showVideoProgressIndicator = true,
   double aspectRatio = 16 / 9,
-  Widget bufferIndicator,
+  Widget? bufferIndicator,
   Duration controlsTimeOut = const Duration(seconds: 3),
   Color liveUIColor = Colors.red,
-  void Function() onReady,
-  ProgressBarColors progressBarColors,
-  Color progressIndicatorColor,
-  Widget thumbnail,
+  void Function()? onReady,
+  ProgressBarColors? progressBarColors,
+  Color? progressIndicatorColor,
+  Widget? thumbnail,
   EdgeInsetsGeometry actionsPadding = const EdgeInsets.all(8.0),
 }) {
   return TestApp(
@@ -45,7 +45,7 @@ Widget buildPlayer({
   );
 }
 
-YoutubePlayerController createController([YoutubePlayerFlags flags]) {
+YoutubePlayerController createController([YoutubePlayerFlags? flags]) {
   return YoutubePlayerController(
     initialVideoId: 'p2lYr3vM_1w',
     flags: flags ?? const YoutubePlayerFlags(hideThumbnail: true),
@@ -70,7 +70,7 @@ class TestApp extends StatelessWidget {
 
   TestApp({
     this.textDirection = TextDirection.ltr,
-    this.child,
+    required this.child,
   });
 
   @override
@@ -109,13 +109,13 @@ class MockHttpHeaders extends Mock implements HttpHeaders {}
 
 // Returns a mock HTTP client that responds with an image to all requests.
 MockHttpClient _createMockImageHttpClient(
-    SecurityContext _, List<int> imageBytes) {
+    SecurityContext? _, List<int> imageBytes) {
   final client = MockHttpClient();
   final request = MockHttpClientRequest();
   final response = MockHttpClientResponse();
   final headers = MockHttpHeaders();
 
-  when(client.getUrl(any))
+  when(client.getUrl(any as Uri))
       .thenAnswer((_) => Future<HttpClientRequest>.value(request));
   when(request.headers).thenReturn(headers);
   when(request.close())

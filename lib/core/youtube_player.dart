@@ -41,7 +41,7 @@ import 'youtube_web_view.dart';
 ///
 class YoutubePlayer extends StatefulWidget {
   /// Sets [Key] as an identification to underlying web view associated to the player.
-  final Key key;
+  final Key? key;
 
   /// A [YoutubePlayerController] to control the player.
   final YoutubePlayerController controller;
@@ -51,7 +51,7 @@ class YoutubePlayer extends StatefulWidget {
   ///
   /// Default is devices's width.
   /// {@endtemplate}
-  final double width;
+  final double? width;
 
   /// {@template youtube_player.aspectRatio}
   /// Defines the aspect ratio to be assigned to the player. This property along with [width] calculates the player size.
@@ -70,30 +70,30 @@ class YoutubePlayer extends StatefulWidget {
   /// {@template youtube_player.bufferIndicator}
   /// Overrides the default buffering indicator for the player.
   /// {@endtemplate}
-  final Widget bufferIndicator;
+  final Widget? bufferIndicator;
 
   /// {@template youtube_player.progressColors}
   /// Overrides default colors of the progress bar, takes [ProgressColors].
   /// {@endtemplate}
-  final ProgressBarColors progressColors;
+  final ProgressBarColors? progressColors;
 
   /// {@template youtube_player.progressIndicatorColor}
   /// Overrides default color of progress indicator shown below the player(if enabled).
   /// {@endtemplate}
-  final Color progressIndicatorColor;
+  final Color? progressIndicatorColor;
 
   /// {@template youtube_player.onReady}
   /// Called when player is ready to perform control methods like:
   /// play(), pause(), load(), cue(), etc.
   /// {@endtemplate}
-  final VoidCallback onReady;
+  final VoidCallback? onReady;
 
   /// {@template youtube_player.onEnded}
   /// Called when player had ended playing a video.
   ///
   /// Returns [YoutubeMetaData] for the video that has just ended playing.
   /// {@endtemplate}
-  final void Function(YoutubeMetaData metaData) onEnded;
+  final void Function(YoutubeMetaData metaData)? onEnded;
 
   /// {@template youtube_player.liveUIColor}
   /// Overrides color of Live UI when enabled.
@@ -103,12 +103,12 @@ class YoutubePlayer extends StatefulWidget {
   /// {@template youtube_player.topActions}
   /// Adds custom top bar widgets.
   /// {@endtemplate}
-  final List<Widget> topActions;
+  final List<Widget>? topActions;
 
   /// {@template youtube_player.bottomActions}
   /// Adds custom bottom bar widgets.
   /// {@endtemplate}
-  final List<Widget> bottomActions;
+  final List<Widget>? bottomActions;
 
   /// {@template youtube_player.actionsPadding}
   /// Defines padding for [topActions] and [bottomActions].
@@ -122,7 +122,7 @@ class YoutubePlayer extends StatefulWidget {
   ///
   /// If not set, default thumbnail of the video is shown.
   /// {@endtemplate}
-  final Widget thumbnail;
+  final Widget? thumbnail;
 
   /// {@template youtube_player.showVideoProgressIndicator}
   /// Defines whether to show or hide progress indicator below the player.
@@ -134,7 +134,7 @@ class YoutubePlayer extends StatefulWidget {
   /// Creates [YoutubePlayer] widget.
   YoutubePlayer({
     this.key,
-    @required this.controller,
+    required this.controller,
     this.width,
     this.aspectRatio = 16 / 9,
     this.controlsTimeOut = const Duration(seconds: 3),
@@ -154,8 +154,8 @@ class YoutubePlayer extends StatefulWidget {
   /// Converts fully qualified YouTube Url to video id.
   ///
   /// If videoId is passed as url then no conversion is done.
-  static String convertUrlToId(String url, {bool trimWhitespaces = true}) {
-    assert(url?.isNotEmpty ?? false, 'Url cannot be empty');
+  static String? convertUrlToId(String url, {bool trimWhitespaces = true}) {
+    assert(url.isNotEmpty, 'Url cannot be empty');
     if (!url.contains("http") && (url.length == 11)) return url;
     if (trimWhitespaces) url = url.trim();
 
@@ -166,7 +166,7 @@ class YoutubePlayer extends StatefulWidget {
           r"^https:\/\/(?:www\.|m\.)?youtube(?:-nocookie)?\.com\/embed\/([_\-a-zA-Z0-9]{11}).*$"),
       RegExp(r"^https:\/\/youtu\.be\/([_\-a-zA-Z0-9]{11}).*$")
     ]) {
-      Match match = exp.firstMatch(url);
+      Match? match = exp.firstMatch(url);
       if (match != null && match.groupCount >= 1) return match.group(1);
     }
 
@@ -175,7 +175,7 @@ class YoutubePlayer extends StatefulWidget {
 
   /// Grabs YouTube video's thumbnail for provided video id.
   static String getThumbnail({
-    @required String videoId,
+    required String videoId,
     String quality = ThumbnailQuality.standard,
     bool webp = true,
   }) =>
@@ -188,9 +188,9 @@ class YoutubePlayer extends StatefulWidget {
 }
 
 class _YoutubePlayerState extends State<YoutubePlayer> {
-  YoutubePlayerController controller;
+  late YoutubePlayerController controller;
 
-  double _aspectRatio;
+  late double _aspectRatio;
   bool _initialLoad = true;
 
   @override
@@ -203,8 +203,8 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   @override
   void didUpdateWidget(YoutubePlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    oldWidget.controller?.removeListener(listener);
-    widget.controller?.addListener(listener);
+    oldWidget.controller.removeListener(listener);
+    widget.controller.addListener(listener);
   }
 
   void listener() async {
@@ -212,7 +212,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       _initialLoad = false;
       if (controller.flags.autoPlay) controller.play();
       if (controller.flags.mute) controller.mute();
-      if (widget.onReady != null) widget.onReady();
+      if (widget.onReady != null) widget.onReady!();
       if (controller.flags.controlsVisibleAtStart) {
         controller.updateValue(
           controller.value.copyWith(isControlsVisible: true),
@@ -283,7 +283,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     );
   }
 
-  Widget _buildPlayer({Widget errorWidget}) {
+  Widget _buildPlayer({Widget? errorWidget}) {
     return AspectRatio(
       aspectRatio: _aspectRatio,
       child: Stack(
@@ -305,7 +305,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                       endAt: controller.flags.endAt);
                 }
                 if (widget.onEnded != null) {
-                  widget.onEnded(metaData);
+                  widget.onEnded!(metaData);
                 }
               },
             ),
@@ -329,7 +329,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
               child: IgnorePointer(
                 ignoring: true,
                 child: ProgressBar(
-                  colors: widget.progressColors.copyWith(
+                  colors: widget.progressColors!.copyWith(
                     handleColor: Colors.transparent,
                   ),
                 ),
@@ -397,7 +397,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
             Center(
               child: PlayPauseButton(),
             ),
-          if (controller.value.hasError) errorWidget,
+          if (controller.value.hasError) errorWidget ?? SizedBox(),
         ],
       ),
     );

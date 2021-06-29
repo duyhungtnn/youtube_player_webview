@@ -10,12 +10,12 @@ import '../utils/youtube_player_controller.dart';
 
 class YoutubeWebView extends StatefulWidget {
   /// Sets [Key] as an identification to underlying web view associated to the player.
-  final Key key;
+  final Key? key;
 
-  final YoutubePlayerController controller;
+  final YoutubePlayerController? controller;
 
   /// {@macro youtube_player.onEnded}
-  final void Function(YoutubeMetaData metaData) onEnded;
+  final void Function(YoutubeMetaData metaData)? onEnded;
 
   /// Creates a [YoutubeWebView] widget.
   YoutubeWebView({this.key, this.onEnded, this.controller});
@@ -26,13 +26,13 @@ class YoutubeWebView extends StatefulWidget {
 
 class _YoutubeWebViewState extends State<YoutubeWebView>
     with WidgetsBindingObserver {
-  YoutubePlayerController controller;
-  PlayerState _cachedPlayerState;
+  YoutubePlayerController? controller;
+  PlayerState? _cachedPlayerState;
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    if (widget.controller != null && !widget.controller.hasDisposed) {
+    WidgetsBinding.instance?.addObserver(this);
+    if (widget.controller != null && !widget.controller!.hasDisposed) {
       this.controller = widget.controller;
     }
     super.initState();
@@ -41,7 +41,7 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
   @override
   void dispose() {
     super.dispose();
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
   }
 
   @override
@@ -56,7 +56,7 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
       case AppLifecycleState.inactive:
         break;
       case AppLifecycleState.paused:
-        _cachedPlayerState = controller.value.playerState;
+        _cachedPlayerState = controller?.value.playerState;
         controller?.pause();
         break;
       default:
@@ -71,8 +71,8 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
         switch (jsonMessage['method']) {
           case 'Ready':
             {
-              controller.updateValue(
-                controller.value.copyWith(isReady: true),
+              controller?.updateValue(
+                controller!.value.copyWith(isReady: true),
               );
               break;
             }
@@ -88,15 +88,15 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
             {
               String playbackQuality =
                   jsonMessage['args']['playbackQuality'] as String;
-              controller.updateValue(
-                  controller.value.copyWith(playbackQuality: playbackQuality));
+              controller?.updateValue(
+                  controller!.value.copyWith(playbackQuality: playbackQuality));
               break;
             }
 
           case 'PlaybackRateChange':
             {
               final num playbackRate = jsonMessage['args']['playbackRate'];
-              controller.updateValue(controller.value
+              controller?.updateValue(controller!.value
                   .copyWith(playbackRate: playbackRate.toDouble()));
               break;
             }
@@ -104,12 +104,12 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
           case 'Errors':
             {
               int errorCode = jsonMessage['args']['errorCode'] as int;
-              controller.updateValue(controller.value.copyWith(
+              controller?.updateValue(controller!.value.copyWith(
                 errorCode: errorCode,
                 errorMessage: errorString(
                   errorCode,
                   videoId:
-                      controller.metadata.videoId ?? controller.initialVideoId,
+                      controller?.metadata.videoId ?? controller?.initialVideoId ?? '',
                 ),
               ));
               break;
@@ -119,8 +119,7 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
             {
               final rawMetaData = jsonMessage['args'];
               final metaData = YoutubeMetaData.fromRawData(rawMetaData);
-              controller
-                  .updateValue(controller.value.copyWith(metaData: metaData));
+              controller?.updateValue(controller!.value.copyWith(metaData: metaData));
               break;
             }
 
@@ -128,8 +127,8 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
             {
               final position = jsonMessage['args']['position'] * 1000;
               final num buffered = jsonMessage['args']['buffered'];
-              controller.updateValue(
-                controller.value.copyWith(
+              controller?.updateValue(
+                controller!.value.copyWith(
                   position: Duration(milliseconds: position.floor()),
                   buffered: buffered.toDouble(),
                 ),
@@ -144,21 +143,21 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
   void _onPlayerStateChange(int state) {
     switch (state) {
       case -1:
-        controller.updateValue(controller.value
+        controller?.updateValue(controller!.value
             .copyWith(isLoaded: true, playerState: PlayerState.unStarted));
         break;
       case 0:
         {
-          if (widget.onEnded != null) {
-            widget.onEnded(controller.metadata);
+          if (widget.onEnded != null && controller != null) {
+            widget.onEnded!(controller!.metadata);
           }
-          controller.updateValue(controller.value.copyWith(
+          controller?.updateValue(controller!.value.copyWith(
             playerState: PlayerState.ended,
           ));
           break;
         }
       case 1:
-        controller.updateValue(controller.value.copyWith(
+        controller?.updateValue(controller!.value.copyWith(
           playerState: PlayerState.playing,
           isPlaying: true,
           hasPlayed: true,
@@ -167,18 +166,18 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
         ));
         break;
       case 2:
-        controller.updateValue(controller.value.copyWith(
+        controller?.updateValue(controller!.value.copyWith(
           playerState: PlayerState.paused,
           isPlaying: false,
         ));
         break;
       case 3:
-        controller.updateValue(controller.value.copyWith(
+        controller?.updateValue(controller!.value.copyWith(
           playerState: PlayerState.buffering,
         ));
         break;
       case 5:
-        controller.updateValue(controller.value.copyWith(
+        controller?.updateValue(controller!.value.copyWith(
           playerState: PlayerState.cued,
         ));
         break;
@@ -189,7 +188,7 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
 
   @override
   Widget build(BuildContext context) {
-    if (controller == null || controller.hasDisposed) {
+    if (controller == null || controller!.hasDisposed) {
       controller = YoutubePlayerController.of(context);
     }
     return WebView(
@@ -209,17 +208,17 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
   void _onWebViewCreated(WebViewController webViewController) {
     webViewController.loadUrl(
       Uri.dataFromString(
-        _buildYoutubeHtml(controller),
+        _buildYoutubeHtml(controller!),
         mimeType: 'text/html',
         encoding: Encoding.getByName('utf-8'),
       ).toString(),
     );
-    controller.updateValue(
-        controller.value.copyWith(webViewController: webViewController));
+    controller?.updateValue(
+        controller!.value.copyWith(webViewController: webViewController));
   }
 
   void _handleWebResourceError(WebResourceError error) {
-    controller.updateValue(controller.value.copyWith(
+    controller?.updateValue(controller!.value.copyWith(
       errorCode: error.errorCode,
       errorMessage: error.description,
     ));
@@ -388,9 +387,9 @@ class _YoutubeWebViewState extends State<YoutubeWebView>
   ''';
   }
 
-  int _boolean({@required bool value}) => value ? 1 : 0;
+  int _boolean({required bool value}) => value ? 1 : 0;
 
-  String get userAgent => controller.flags.forceHD
+  String? get userAgent => controller!.flags.forceHD
       ? 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36'
       : null;
 }
